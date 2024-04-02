@@ -2,8 +2,10 @@
 //   Canvas(width: Int, height: Int)
 // }
 
-pub type P5 {
-  Sketch
+pub type P5
+
+pub type Sketch(model) {
+  Config(start: fn(P5) -> model, draw: fn(P5) -> model, next: fn(P5) -> model)
 }
 
 pub type HtmlElement

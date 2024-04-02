@@ -1,7 +1,5 @@
 <script setup>
 import { ref, onMounted } from "vue";
-
-// import { addSetup, addDraw, createCanvas, background } from '../../../build/dev/javascript/draw/ffi.mjs';
 import { gleam_draw } from '../../../build/dev/javascript/draw/draw.mjs';
 import p5 from "p5"
 

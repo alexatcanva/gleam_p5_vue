@@ -2,15 +2,21 @@ import p5
 import gleam/io
 import gleam/float
 
-fn update_x(old_x: Float, delta_time: Float, speed: Float) -> Float {
-  let delta_x = speed *. delta_time
-  old_x +. delta_x
+type State {
+  State(x: Int)
+}
+
+/// state_next performs any required state changes to the world state
+/// it is executed once per frame loop (as per the draw method)
+fn state_next(state: State) -> State {
+  case state.x {
+    _ if state.x < 0 -> State(700)
+    _ -> State(state.x - 1)
+  }
 }
 
 pub fn gleam_draw(sketch: p5.P5) -> p5.P5 {
-  let speed = 0.5
-  let x = 0.0
-  let y = 205
+  let x = 700
 
   let setup_sketch = fn(sketch: p5.P5) -> p5.P5 {
     p5.create_canvas(sketch, 700, 410)
@@ -18,11 +24,11 @@ pub fn gleam_draw(sketch: p5.P5) -> p5.P5 {
   }
 
   let draw_sketch = fn(sketch: p5.P5) -> p5.P5 {
-    let x = update_x(0.0, p5.delta_time(sketch), speed)
-    io.println("new_x: " <> float.to_string(x))
+    let state = state_next(State(x))
+
     sketch
     |> p5.background(150)
-    |> p5.ellipse(float.round(x), y, 50, 50)
+    |> p5.ellipse(500, x, 50, 50)
   }
 
   sketch
