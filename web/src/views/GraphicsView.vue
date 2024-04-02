@@ -6,7 +6,7 @@ import p5 from "p5"
 const canvas = ref()
 
 onMounted(() => {
-  new p5(gleam_draw);
+  gleam_draw(p5)
 });
 
 </script>
