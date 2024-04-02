@@ -1,10 +1,5 @@
-import external/p5
+import gleam/io
 
-fn setup() {
-  p5.create_canvas(800, 600)
-}
-
-fn draw() {
-  p5.ellipse(400, 300, 50, 50)
-  p5.background(220)
+pub fn main() {
+  io.println("Hello from draw!")
 }
