@@ -1,64 +1,105 @@
 import p5
-import gleam/io
 import gleam/list
 import gleam/float
-import gleam_community/maths/elementary
+import gleam/int
 
-type Segment {
-  Segment(x: Float, y: Float, angle: Float)
+const window_width = 480
+
+const window_height = 360
+
+type Vector {
+  Vector(x: Float, y: Float)
 }
 
-type State {
-  State(segments: List(Segment))
+type Particle {
+  Particle(position: Vector, velocity: Vector, lifespan: Float)
 }
 
-const seg_length = 18.0
-
-fn segment(sketch: p5.P5, x: Float, y: Float, angle: Float) -> Nil {
-  p5.push(sketch)
-  p5.translate(sketch, x, y)
-  p5.rotate(sketch, angle)
-  p5.line(sketch, 0, 0, float.round(seg_length), 0)
-  p5.pop(sketch)
-  Nil
+fn vector_add(a: Vector, b: Vector) -> Vector {
+  Vector(x: a.x +. b.x, y: a.y +. b.y)
 }
 
-fn drag_segment(state: State, xin: Float, yin: Float) -> State {
-  State(list.map(state.segments, fn(seg: Segment) { drag(seg, xin, yin) }))
+fn run_particle_system(
+  sketch: p5.P5,
+  acceleration: Vector,
+  system: ParticleSystem,
+) -> ParticleSystem {
+  let particles = {
+    let parts = list.filter(system.particles, fn(p) { p.lifespan >. 0.0 })
+    use par <- list.map(parts)
+    run_particle(sketch, par, acceleration)
+  }
+  ParticleSystem(location: system.location, particles: particles)
 }
 
-fn drag(seg: Segment, x: Float, y: Float) -> Segment {
-  let dx = x -. seg.x
-  let dy = y -. seg.y
-  let angle = elementary.atan2(dy, dx)
-  let x = elementary.cos(angle) *. seg_length
-  let y = elementary.sin(angle) *. seg_length
-  Segment(x, y, angle)
+fn add_particle(system: ParticleSystem) -> ParticleSystem {
+  ParticleSystem(location: system.location, particles: [
+    new_particle(system.location),
+    ..system.particles
+  ])
+}
+
+fn new_particle(position: Vector) -> Particle {
+  Particle(
+    position: position,
+    velocity: Vector(x: float.random(), y: float.random()),
+    lifespan: 200.0,
+  )
+}
+
+fn run_particle(
+  sketch: p5.P5,
+  particle: Particle,
+  acceleration: Vector,
+) -> Particle {
+  let updated_particle = update_particle(particle, acceleration)
+  draw_particle(sketch, updated_particle)
+  updated_particle
+}
+
+fn update_particle(particle: Particle, acceleration: Vector) -> Particle {
+  let delta = vector_add(particle.velocity, acceleration)
+  Particle(
+    velocity: delta,
+    position: vector_add(particle.position, delta),
+    lifespan: particle.lifespan -. 2.0,
+  )
+}
+
+fn draw_particle(sketch: p5.P5, particle: Particle) {
+  sketch
+  |> p5.stroke2(200, particle.lifespan)
+  |> p5.stroke_weight(2)
+  |> p5.fill(127, particle.lifespan)
+  |> p5.ellipse(particle.position.x, particle.position.y, 12, 12)
+}
+
+type ParticleSystem {
+  ParticleSystem(location: Vector, particles: List(Particle))
 }
 
 pub fn gleam_draw(sketch: p5.P5) -> p5.P5 {
-  let segments = list.repeat(Segment(0.0, 0.0, 0.0), times: 20)
-  let state = State(segments)
+  let system_state =
+    ParticleSystem(
+      Vector(
+        int.to_float(window_width) /. 2.0,
+        int.to_float(window_height) /. 2.0,
+      ),
+      [],
+    )
 
-  let start = fn(sketch: p5.P5, _state: State) -> State {
-    p5.create_canvas(sketch, 700, 410)
+  let start = fn(sketch: p5.P5, _state: ParticleSystem) -> ParticleSystem {
+    p5.create_canvas(sketch, window_width, window_height)
     p5.framerate(sketch, 60.0)
-    p5.stroke_weight(sketch, 9)
-    state
+    system_state
   }
 
-  let update = fn(sketch: p5.P5, state: State) -> State {
-    let next_state = drag_segment(state, p5.mouse_x(sketch), p5.mouse_y(sketch))
-    io.debug(next_state)
+  let update = fn(sketch: p5.P5, state: ParticleSystem) -> ParticleSystem {
     sketch
-    |> p5.background(150)
-    {
-      list.map(next_state.segments, fn(seg: Segment) {
-        segment(sketch, seg.x, seg.y, seg.angle)
-      })
-    }
-    next_state
+    |> p5.background(51)
+    let new_state = add_particle(state)
+    run_particle_system(sketch, Vector(float.random() /. 10.0, 0.05), new_state)
   }
 
-  p5.new(sketch, p5.Config(start, update, state))
+  p5.new(sketch, p5.Config(start, update, system_state))
 }

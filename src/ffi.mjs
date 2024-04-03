@@ -65,6 +65,14 @@ export function strokeWeight(s, w) {
   return s.strokeWeight(w);
 }
 
-export function stroke(s, r, g, b) {
-  return s.stroke(c, r, g, b);
+export function stroke(s, a, b) {
+  return s.stroke(a, b);
+}
+
+// export function stroke(s, r, g, b) {
+//   return s.stroke(c, r, g, b);
+// }
+
+export function fill(s, a, b) {
+  return s.fill(a, b);
 }

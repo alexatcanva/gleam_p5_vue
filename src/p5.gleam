@@ -18,7 +18,7 @@ pub fn create_canvas(sketch: P5, width: Int, height: Int) -> P5
 pub fn delta_time(sketch: P5) -> Float
 
 @external(javascript, "./ffi.mjs", "ellipse")
-pub fn ellipse(sketch: P5, x: Int, y: Int, width: Int, height: Int) -> P5
+pub fn ellipse(sketch: P5, x: Float, y: Float, width: Int, height: Int) -> P5
 
 @external(javascript, "./ffi.mjs", "frameRate")
 pub fn framerate(sketch: P5, fps: Float) -> P5
@@ -32,8 +32,14 @@ pub fn mouse_y(sketch: P5) -> Float
 @external(javascript, "./ffi.mjs", "strokeWeight")
 pub fn stroke_weight(sketch: P5, weight: Int) -> P5
 
+// @external(javascript, "./ffi.mjs", "stroke")
+// pub fn stroke(sketch: P5, r: Int, g: Int, b: Int) -> P5
+
 @external(javascript, "./ffi.mjs", "stroke")
-pub fn stroke(sketch: P5, r: Int, g: Int, b: Int) -> P5
+pub fn stroke2(sketch: P5, a: Int, depth: Float) -> P5
+
+@external(javascript, "./ffi.mjs", "fill")
+pub fn fill(sketch: P5, a: Int, depth: Float) -> P5
 
 //   p5.push()
 //   p5.translate(x, y)
