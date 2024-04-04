@@ -15,28 +15,12 @@ type Particle {
   Particle(position: Vector, velocity: Vector, lifespan: Float)
 }
 
+type ParticleSystem {
+  ParticleSystem(location: Vector, particles: List(Particle))
+}
+
 fn vector_add(a: Vector, b: Vector) -> Vector {
   Vector(x: a.x +. b.x, y: a.y +. b.y)
-}
-
-fn run_particle_system(
-  sketch: p5.P5,
-  acceleration: Vector,
-  system: ParticleSystem,
-) -> ParticleSystem {
-  let particles = {
-    let parts = list.filter(system.particles, fn(p) { p.lifespan >. 0.0 })
-    use par <- list.map(parts)
-    run_particle(sketch, par, acceleration)
-  }
-  ParticleSystem(location: system.location, particles: particles)
-}
-
-fn add_particle(system: ParticleSystem) -> ParticleSystem {
-  ParticleSystem(location: system.location, particles: [
-    new_particle(system.location),
-    ..system.particles
-  ])
 }
 
 fn new_particle(position: Vector) -> Particle {
@@ -74,8 +58,24 @@ fn draw_particle(sketch: p5.P5, particle: Particle) {
   |> p5.ellipse(particle.position.x, particle.position.y, 12, 12)
 }
 
-type ParticleSystem {
-  ParticleSystem(location: Vector, particles: List(Particle))
+fn run_particle_system(
+  sketch: p5.P5,
+  acceleration: Vector,
+  system: ParticleSystem,
+) -> ParticleSystem {
+  let particles = {
+    let parts = list.filter(system.particles, fn(p) { p.lifespan >. 0.0 })
+    use par <- list.map(parts)
+    run_particle(sketch, par, acceleration)
+  }
+  ParticleSystem(location: system.location, particles: particles)
+}
+
+fn add_particle(system: ParticleSystem) -> ParticleSystem {
+  ParticleSystem(location: system.location, particles: [
+    new_particle(system.location),
+    ..system.particles
+  ])
 }
 
 pub fn gleam_draw(sketch: p5.P5) -> p5.P5 {
